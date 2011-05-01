@@ -24,25 +24,25 @@ class FBStatsVisualizer(object):
         return chart
     
     def buildRelatioshipStatusChart(self, data):
-        chart = self.buildPieChart2D(data, True)
+        chart = self.buildPieChart3D(data, True)
         chart.set_title('Friends Relationship Status')
         
         return chart
     
     def buildCategorizedAgeChart(self, data):
-        chart = self.buildPieChart2D(data, False, True)
+        chart = self.buildPieChart3D(data, False, True)
         chart.set_title('Friends Age')
         
         return chart
     
     def buildCategorizedPicCountChart(self, data):
-        chart = self.buildPieChart2D(data, False, True)
+        chart = self.buildPieChart3D(data, False, True)
         chart.set_title('Friends Number of Pictures Uploaded')
         
         return chart
     
     def buildCategorizedTagCountChart(self, data):
-        chart = self.buildPieChart2D(data, True)
+        chart = self.buildPieChart3D(data, True)
         chart.set_title('Number of Picture Tags')
         
         return chart
@@ -101,7 +101,7 @@ class FBStatsVisualizer(object):
             bars.append(value[1])
             labels.append(value[0] + ' (' + str(value[1]) + ')')
         
-        chart = PieChart2D(self.defaultWidth, self.defaultHeight)
+        chart = PieChart3D(self.defaultWidth, self.defaultHeight)
                 
         chart.add_data(bars)
         chart.set_pie_labels(labels)
@@ -122,7 +122,7 @@ class FBStatsVisualizer(object):
             values.append(value[1])
             keys.append(value[0] + ' (' + str(value[1]) + ')')
         
-        chart = PieChart2D(self.defaultWidth, self.defaultHeight)
+        chart = PieChart3D(self.defaultWidth, self.defaultHeight)
                 
         chart.add_data(values)
         chart.set_pie_labels(keys)
@@ -143,7 +143,7 @@ class FBStatsVisualizer(object):
             values.append(value[1])
             keys.append(self.removeNonAscii(value[0]) + ' (' + str(value[1]) + ')')
         
-        chart = PieChart2D(self.defaultWidth, self.defaultHeight)
+        chart = PieChart3D(self.defaultWidth, self.defaultHeight)
                 
         chart.add_data(values)
         chart.set_pie_labels(keys)
