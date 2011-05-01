@@ -50,6 +50,7 @@ class FBStatsVisualizer(object):
     def buildAgePhotoCountScatterChart(self, data, xRange, yRange):
         chart = self.buildScatterChart(data, 'count', 'age', xRange, yRange)
         chart.set_title('Age - Number of Pictures')
+        
         chart.set_axis_labels('x', self.buildLabels(xRange))
         chart.set_axis_labels('y', self.buildLabels(yRange))
         
@@ -179,14 +180,14 @@ class FBStatsVisualizer(object):
             xData.append(item[xKey])
             yData.append(item[yKey])
             
-        chart.add_data(xData)
-        chart.add_data(yData)
-        
         if not x_range: x_range = (0, max(xData))
         if not y_range: y_range = (0, max(yData))
         
         chart.set_axis_range('x', x_range[0], x_range[1])
         chart.set_axis_range('y', y_range[0], y_range[1])
+        
+        chart.add_data(xData)
+        chart.add_data(yData)
             
         if buildLabels:
             chart.set_axis_labels('x', self.buildLabels(x_range))
