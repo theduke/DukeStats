@@ -183,9 +183,6 @@ class FBStatsVisualizer(object):
         if not x_range: x_range = (0, max(xData))
         if not y_range: y_range = (0, max(yData))
         
-        chart.set_axis_range('x', x_range[0], x_range[1])
-        chart.set_axis_range('y', y_range[0], y_range[1])
-        
         chart.add_data(xData)
         chart.add_data(yData)
             
