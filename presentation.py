@@ -17,7 +17,7 @@ from email.MIMEAudio import MIMEAudio
 from email.MIMEImage import MIMEImage
 from email.Encoders import encode_base64
 
-def removeNonAscii(self, s): return "".join(i for i in s if ord(i)<128)   
+def removeNonAscii(s): return "".join(i for i in s if ord(i)<128)   
 
 def sendMail(subject, text, gmailUser, gmailPassword, recipient):
     msg = MIMEMultipart()
