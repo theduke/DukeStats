@@ -11,7 +11,7 @@ logging.basicConfig(format='%(asctime)s - %(levelname)s: %(message)s', level=log
 
 v = visual.FBStatsVisualizer()
 
-path = '/Users/theduke/Documents/MIS/'
+path = '/var/www/dukestats/files/stats/'
 
 # JENNY ##code = 'yzPSvOdSpP2bnvYFuZKa8jVMzGTLvAPuR1rUG3bmukQ.eyJpdiI6IjRNbEVEY0d6M09uaEswUTJHcXI2THcifQ.9-UqJJNmZpvZe5TlkyFv9vUqSXcblSnxwQ3iV3Q5KlbSV_frE0-nB66Q94QtC8ccz9yX5WULQKW5aL9bW26nfwnc5fOLL8BzpEGxgW4vcAdmSLfxDoZKLfnnL9u8ZZyE'
 # sevim## 
@@ -30,16 +30,16 @@ stats.setFb(fb)
 
 stats.getBaseData(True)
 
+visualizer = fbstats.visual.FBStatsVisualizer()
+
 me = stats._data['me']
 
-path += me['name'] + '/'
+path += visualizer.removeNonAscii(me['name']).replace(' ', '').lower() + '/'
 
 if not os.path.exists(path):
-    os.mkdir(path)
+    os.makedirs(path)
     
 html = '<html><body><h1>Facebook Statistics for %s</h1>' % me['name']
-
-visualizer = fbstats.visual.FBStatsVisualizer()
 
 chart = visualizer.buildSexChart(stats.getFriendsSex())
 chart.download(path + 'sex.jpeg')
@@ -88,5 +88,5 @@ html += '</body></html>'
 
 path += 'stats.html'
 file = open(path, 'w')
-file.write(html)
+file.write(html.encode('ascii', 'replace'))
 file.close()
