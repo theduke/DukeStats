@@ -498,7 +498,7 @@ class FBStats(object):
         data = list()
         inboxData = self.getInboxData(userId)
         
-        for name, count in inboxData['sent']:
+        for name, count in inboxData['sent'].items():
             if not name in inboxData['received']: continue
             
             data.append({'y': count, 'x': inboxData['received']['name']})
