@@ -171,7 +171,7 @@ class FBStatsVisualizer(object):
     
     
     def buildScatterChart(self, data, xKey, yKey, x_range=None, y_range=None, buildLabels=False):
-        chart = ScatterChart(self.defaultWidth, self.defaultHeight)
+        chart = ScatterChart(self.defaultWidth, self.defaultHeight, x_range=x_range, y_range=y_range)
         
         xData = list()
         yData = list()
