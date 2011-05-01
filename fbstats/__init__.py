@@ -92,7 +92,9 @@ class Facebook(object):
             albums.extend(data['data'])
             
             if 'paging' in data and 'next' in data['paging']:
-                if data['paging']['next'].find('until=0'): break
+                if data['paging']['next'].find('until=0') != -1:
+                    logging.warning('Not following the pager link %s because until=0 was found', data['paging']['next'])
+                    break
                 
                 data = self.graph.request_url(data['paging']['next'])
             else:
@@ -112,7 +114,10 @@ class Facebook(object):
                     tags.append(item)
             
             if 'paging' in data and 'next' in data['paging']:
-                if data['paging']['next'].find('until=0'): break
+                if data['paging']['next'].find('until=0') != -1: 
+                    logging.warning('Not following the pager link %s because until=0 was found', data['paging']['next'])
+                    break
+                
                 data = self.graph.request_url(data['paging']['next'])
             else:
                 break
@@ -128,7 +133,10 @@ class Facebook(object):
                 posts.append(item)
             
             if 'paging' in data and 'next' in data['paging']:
-                if data['paging']['next'].find('until=0'): break
+                if data['paging']['next'].find('until=0') != -1:
+                    logging.warning('Not following the pager link %s because until=0 was found', data['paging']['next'])
+                    break
+                
                 data = self.graph.request_url(data['paging']['next'])
             else:
                 break
@@ -140,15 +148,38 @@ class Facebook(object):
         posts = list()
         
         while (True):
-            for item in data['data']:
+            for item in data['data']: 
                 posts.append(item)
-            
+                
             if 'paging' in data and 'next' in data['paging']:
                 data = self.graph.request_url(data['paging']['next'])
             else:
                 break
         
         return posts
+    
+    def getCompleteInboxMessage(self, message):
+        '''Fetch additional paged comments for this message
+        THIS DOES NOT WORK AT THE MOMENT SINCE THE API MESSES UP THE PAGER LINKS
+        NOT SUPPORTED YET?
+        
+        CODE UNFINISHED!!
+        '''
+        
+        if not ('comments' in message and 'paging' in message['comments'] and 'next' in message['comments']['paging']): return message
+        
+        data = self.graph.request_url(message['comments']['paging']['next'])
+        
+        while (True):
+            for item in data['data']: 
+                message['comments']['data'].append(item)
+                
+            if 'paging' in data and 'next' in data['paging']:
+                data = self.graph.request_url(message['comments']['paging']['next'])
+            else:
+                break
+            
+        return message
         
     
 class FBStats(object):
@@ -377,10 +408,9 @@ class FBStats(object):
     def getInboxData(self, userId, getSorted=False):
         ''' Return a per person counter for sent and received private messages'''
         
-        sent = dict()
-        received = dict()
+        data = {'sent': dict(), 'received': dict()}
         
-        if userId != 'me':
+        if True:
             me = self.fb.graph.get_object(userId)
             inbox = self.fb.getInbox(userId)
         else:
@@ -390,55 +420,78 @@ class FBStats(object):
         userId = me['id']
         
         for message in inbox:
-            isSender = False
-            isRecipient = False
-            otherPartyNames = list()
+            msgData = self.getMessageInfo(message, userId)
             
-            senderId = message['from']['id']
+            for type, name in msgData:
+                if not name in data[type]: data[type][name] = 0
+                data[type][name] += 1
+        
+        if getSorted:
+            data['sent'] = sorted(data['sent'].iteritems(), key=operator.itemgetter(1), reverse=True)
+            data['received'] = sorted(data['received'].iteritems(), key=operator.itemgetter(1), reverse=True)
             
-            if senderId == userId:
-                isSender = True
+        return data
+                        
+    def getMessageInfo(self, message, userId):
+        data = list()
+        
+        isSender = False
+        isRecipient = False
+        otherPartyNames = list()
+        
+        senderId = message['from']['id']
+        
+        if senderId == userId:
+            isSender = True
+            
+            for recipient in message['to']['data']:
+                if not recipient:
+                    logging.warning('Empty recipient %s', str(recipient))
+                    continue
                 
-                for recipient in message['to']['data']:
-                    if recipient['id'] == userId: continue
+                if recipient['id'] == userId: continue
+                
+                data.append(('sent', recipient['name']))
+                
+                otherPartyNames.append(recipient['name'])
+        else:
+            for recipient in message['to']['data']:
+                if not recipient: 
+                    logging.warning('Empty recipient %s', str(recipient))
+                    continue
+                
+                if recipient['id'] == userId:
+                    senderName = message['from']['name']
                     
-                    if not recipient['name'] in sent: sent[recipient['name']] = 0
-                    sent[recipient['name']] += 1
+                    data.append(('received', senderName))
                     
-                    otherPartyNames.append(recipient['name'])
+                    otherPartyNames.append(senderName)
+                    
+                    isRecipient = True
+                    break
+        
+        if (isSender or isRecipient) and 'comments' in message:
+            data.extend(self.getMessageCommentsInfo(message['comments']['data'], userId, otherPartyNames))
+        
+        return data
+    
+    def getMessageCommentsInfo(self, comments, userId, otherPartyNames):
+        data = list()
+        
+        for comment in comments:
+            if not comment or not comment['from']:
+                logging.warning('Faulty comment: %s', repr(comment))
+                continue
+            
+            if comment['from']['id'] == userId:
+                for name in otherPartyNames:
+                    data.append(('sent', name))
             else:
-                for recipient in message['to']['data']:
-                    if recipient['id'] == userId:
-                        senderName = message['from']['name']
-                        if not senderName in received: received[senderName] = 0
-                        received[senderName] += 1
-                        
-                        otherPartyNames.append(senderName)
-                        
-                        isRecipient = True
-                        break
-            
-            if not (isSender or isRecipient): continue        
-            
-            if  'comments' in message:
-                for comment in message['comments']['data']:
-                    if comment['from']['id'] == userId:
-                        for name in otherPartyNames:
-                            if not name in sent: sent[name] = 0
-                            sent[name] += 1
-                    else:
-                        for name in otherPartyNames:
-                            if not name in received: received[name] = 0
-                            received[name] += 1
-                            
-            if getSorted:
-                sent = sorted(sent.iteritems(), key=operator.itemgetter(1), reverse=True)
-                received = sorted(received.iteritems(), key=operator.itemgetter(1), reverse=True)
-            
-            return {'sent': sent, 'received': received}    
-                        
+                for name in otherPartyNames:
+                    data.append(('received', name))
                     
-            
+        return data
+    
     def getTagBuddyWallPosterCountSet(self, userId):
         data = dict()
         
