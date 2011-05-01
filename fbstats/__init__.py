@@ -439,6 +439,8 @@ class FBStats(object):
         isRecipient = False
         otherPartyNames = list()
         
+        if not message['from']: return data
+        
         senderId = message['from']['id']
         
         if senderId == userId:
