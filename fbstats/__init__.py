@@ -410,7 +410,7 @@ class FBStats(object):
         
         data = {'sent': dict(), 'received': dict()}
         
-        if True:
+        if userId != 'me':
             me = self.fb.graph.get_object(userId)
             inbox = self.fb.getInbox(userId)
         else:
