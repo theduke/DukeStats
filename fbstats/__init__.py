@@ -75,7 +75,7 @@ class Facebook(object):
         i = 1
         
         for id, friend in data.items():
-            logging.info('Getting additional data for user %s (%s of %s', id, str(i), str(friendCount))
+            logging.debug('Getting additional data for user %s (%s of %s', id, str(i), str(friendCount))
             
             friend['albums'] = self.getAllAlbums(id)
             #friend['tags'] = self.getAllTags(id)
