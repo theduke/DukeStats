@@ -494,6 +494,17 @@ class FBStats(object):
                     
         return data
     
+    def getMessageSenderRecipientScatterData(self, userId):
+        data = list()
+        inboxData = self.getInboxData(userId)
+        
+        for name, count in inboxData['sent']:
+            if not name in inboxData['received']: continue
+            
+            data.append({'y': count, 'x': inboxData['received']['name']})
+            
+        return data
+    
     def getTagBuddyWallPosterCountSet(self, userId):
         data = dict()
         

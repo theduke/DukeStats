@@ -24,7 +24,7 @@ def sendMail(subject, text, gmailUser, gmailPassword, recipient):
     msg['From'] = gmailUser
     msg['To'] = recipient
     msg['Subject'] = subject
-    msg.attach(MIMEText(text))
+    msg.attach(MIMEText(text.encode('ascii', 'replace')))
 
     mailServer = smtplib.SMTP('smtp.gmail.com', 587)
     mailServer.ehlo()
@@ -73,12 +73,18 @@ def buildCharts(stats, visualizer, path, me):
     chart.download(path + 'tagbuddy_wallpost_scatter.jpeg')
     html += '<div class="chart-wrap"><img src="%s" /></div>' % chart.get_url()
     
-    chart = visualizer.buildTopRecordsPieChartFromSortedData(stats.getInboxData('me', True)['received'], 'Top Private Message Senders')
+    inboxData = stats.getInboxData('me', True)
+    
+    chart = visualizer.buildTopRecordsPieChartFromSortedData(inboxData['received'], 'Top Private Message Senders')
     chart.download(path + 'msg_senders.jpeg')
     html += '<div class="chart-wrap"><img src="%s" /></div>' % chart.get_url()
     
-    chart = visualizer.buildTopRecordsPieChartFromSortedData(stats.getInboxData('me', True)['sent'], 'Top Private Message Recipients')
+    chart = visualizer.buildTopRecordsPieChartFromSortedData(inboxData['sent'], 'Top Private Message Recipients')
     chart.download(path + 'msg_recipients.jpeg')
+    html += '<div class="chart-wrap"><img src="%s" /></div>' % chart.get_url()
+    
+    chart = visualizer.buildMessageSentReceivedScatterChart(stats.getMessageSenderRecipientScatterData('me'))
+    chart.download(path + 'msg_sent_received_scatter.jpeg')
     html += '<div class="chart-wrap"><img src="%s" /></div>' % chart.get_url()
     
     html += '</body></html>'

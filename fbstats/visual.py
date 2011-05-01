@@ -63,6 +63,12 @@ class FBStatsVisualizer(object):
         
         return chart
     
+    def buildMessageSentReceivedScatterChart(self, data):
+        chart = self.buildScatterChart(data, 'x', 'y', None, None, True)
+        chart.set_title('Messages Sent(X) - Messages Received(Y) per Person')
+        
+        return chart
+    
     def buildTagBuddiesWallPosterScatterChart(self, data):
         chart = ScatterChart(self.defaultWidth, self.defaultHeight)
         
@@ -163,8 +169,8 @@ class FBStatsVisualizer(object):
         return labels
     
     
-    def buildScatterChart(self, data, xKey, yKey, x_range, y_range):
-        chart = ScatterChart(self.defaultWidth, self.defaultHeight, x_range=x_range, y_range=y_range)
+    def buildScatterChart(self, data, xKey, yKey, x_range=None, y_range=None, buildLabels=False):
+        chart = ScatterChart(self.defaultWidth, self.defaultHeight)
         
         xData = list()
         yData = list()
@@ -175,6 +181,16 @@ class FBStatsVisualizer(object):
             
         chart.add_data(xData)
         chart.add_data(yData)
+        
+        if not x_range: x_range = (0, max(xData))
+        if not y_range: y_range = (0, max(yData))
+        
+        chart.set_axis_range('x', x_range[0], x_range[1])
+        chart.set_axis_range('y', y_range[0], y_range[1])
+            
+        if buildLabels:
+            chart.set_axis_labels('x', self.buildLabels(x_range))
+            chart.set_axis_labels('y', self.buildLabels(y_range))
         
         return chart
         
