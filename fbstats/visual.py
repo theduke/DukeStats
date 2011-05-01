@@ -64,7 +64,7 @@ class FBStatsVisualizer(object):
         return chart
     
     def buildMessageSentReceivedScatterChart(self, data):
-        chart = self.buildScatterChart(data, 'x', 'y', None, None, True)
+        chart = self.buildScatterChart(data, 'x', 'y')
         chart.set_title('Messages Sent(X) - Messages Received(Y) per Person')
         
         return chart

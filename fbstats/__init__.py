@@ -501,7 +501,7 @@ class FBStats(object):
         for name, count in inboxData['sent'].items():
             if not name in inboxData['received']: continue
             
-            data.append({'y': count, 'x': inboxData['received']['name']})
+            data.append({'y': count, 'x': inboxData['received'][name]})
             
         return data
     
